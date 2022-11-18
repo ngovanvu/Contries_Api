@@ -33,10 +33,22 @@ const AllCountries = () => {
 
   return <div className='all__country__wrapper'>
   <div className='country__top'>
-<h5 className='text-white'>Cai gi vay</h5>
   </div>
 
-  <div className='country__bottom'></div>
+  <div className='country__bottom'>
+  {isLoading && !error && <h4>Loading.........</h4>}
+  {error && !isLoading && <h4>{error}</h4>}
+
+  {
+    countries?.map(country => (
+      <div className='country__card'>
+        <div className='country__img'>
+        
+        </div>
+      </div>
+    )) 
+  }
+  </div>
   </div>
 }
 
