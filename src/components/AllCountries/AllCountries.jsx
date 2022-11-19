@@ -1,55 +1,104 @@
-import React, { useEffect, useState } from 'react'
-import { apiURL } from '../util/api';
+import React, { useEffect, useState } from "react";
+import { apiURL } from "../util/api";
+import SearchInput from "../Search/SearchInput";
+import FillterCountry from "../FillterCountry/FillterCountry";
+
+import { Link } from "react-router-dom";
+
 
 const AllCountries = () => {
-
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const getAllCountries = async() => {
-
+  const getAllCountries = async () => {
     try {
-      const res = await fetch(`${apiURL}/all`)
+      const res = await fetch(`${apiURL}/all`);
 
-      if(!res.ok) throw new Error('Something went wrong')
+      if (!res.ok) throw new Error("Something went wrong");
 
-      const data = await res.json()
+      const data = await res.json();
       console.log(data);
 
-      setCountries(data)
+      setCountries(data);
 
-      setIsLoading(false)
-
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
+      setError(error.message);
+    }
+  };
+
+  //* SearchInput
+  const getCountryByName = async (countryName) => {
+    try {
+      const res = await fetch(`${apiURL}/name/${countryName}`);
+
+      if (!res.ok) throw new Error("Not found any country!");
+
+      const data = await res.json();
+      setCountries(data);
+
       setIsLoading(false)
-      setError(error.message)
+    } catch (error) {
+      setIsLoading(false);
+      setError(error.message);
+    }
+  };
+
+  const getCountryRegion = async (regionName) => {
+    try {
+      const res = await fetch(`${apiURL}/region/${regionName}`);
+
+      if (!res.ok) throw new Error("Not found any Region!");
+
+      const data = await res.json();
+      setCountries(data);
+
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false);
+      setError(false);
     }
   };
   useEffect(() => {
-    getAllCountries()
-  },[])
+    getAllCountries();
+  }, []);
 
-
-  return <div className='all__country__wrapper'>
-  <div className='country__top'>
-  </div>
-
-  <div className='country__bottom'>
-  {isLoading && !error && <h4>Loading.........</h4>}
-  {error && !isLoading && <h4>{error}</h4>}
-
-  {
-    countries?.map(country => (
-      <div className='country__card'>
-        <div className='country__img'>
-        
+  return (
+    <div className="all__country__wrapper">
+      <div className="country__top">
+        <div className="search">
+        <SearchInput onSearch={getCountryByName} />
+        </div>
+        <div className="fillter">
+          <FillterCountry onSelect = {getCountryRegion}/>
         </div>
       </div>
-    )) 
-  }
-  </div>
-  </div>
-}
 
-export default AllCountries
+      <div className="country__bottom">
+        {isLoading && !error && <h4>Loading.........</h4>}
+        {error && !isLoading && <h4>{error}</h4>}
+
+        {countries?.map((country) => (
+         <Link to = {`/country/${country.name.common}`}>
+         <div className="country__card">
+            <div className="country__img">
+              <img src={country.flags.png} alt="" />
+            </div>
+
+            <div className="country__data">
+              <h3>{country.name.common}</h3>
+              <h6>Population: {new Intl.NumberFormat().format(country.population)}</h6>
+              <h6>Region: {country.region}</h6>
+              <h6>Captial: {country.capital}</h6>
+            </div>
+          </div>
+         </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default AllCountries;
